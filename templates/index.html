@@ -1,51 +1,63 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Chatbot</title>
-  </head>
-  <body>
-    <h1>Chatbot</h1>
-    <div id="chatbox">
-      <!-- Display chat messages here -->
-    </div>
-    <form id="user_input_form" action="/chat" method="POST">
-      <input
-        type="text"
-        id="user_input"
-        name="user_input"
-        placeholder="Type your message..."
-      />
-      <button type="submit">Send</button>
-    </form>
-    <script>
-      // JavaScript to handle chat messages and user input
-      const chatbox = document.getElementById('chatbox');
-      const user_input_form = document.getElementById('user_input_form');
-      const user_input = document.getElementById('user_input');
-
-      user_input_form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const userInput = user_input.value;
-        if (userInput.trim() !== '') {
-          // Display user's message in chatbox
-          chatbox.innerHTML += `<p>User: ${userInput}</p>`;
-          user_input.value = '';
-
-          // Send user input to the server
-          const response = await fetch('/chat', {
-            method: 'POST',
-            body: new URLSearchParams({ user_input: userInput }),
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            const chatbotResponse = data.response;
-            // Display chatbot's response in chatbox
-            chatbox.innerHTML += `<p>Chatbot: ${chatbotResponse}</p>`;
-          }
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthCare ChatBot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
         }
-      });
+        h1 {
+            text-align: center;
+        }
+        .form-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>HealthCare ChatBot</h1>
+    
+    <div class="form-container">
+        <form id="symptom-form">
+            <label for="symptoms">Enter Symptoms (comma separated):</label><br><br>
+            <input type="text" id="symptoms" name="symptoms" placeholder="e.g. fever, cough"><br><br>
+            <button type="submit">Get Prediction</button>
+        </form>
+    </div>
+    
+    <div id="result" class="result"></div>
+    <div id="description" class="result"></div>
+
+    <script>
+        // Handle form submission
+        document.getElementById('symptom-form').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent page reload on form submit
+            
+            var symptoms = document.getElementById('symptoms').value.split(',');
+            
+            // Send symptoms to the Flask server and get response
+            fetch('/get_response', {
+                method: 'POST',
+                body: new URLSearchParams(new FormData(document.getElementById('symptom-form')))
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display prediction and description
+                document.getElementById('result').innerText = data.result_message;
+                document.getElementById('description').innerText = "Description: " + data.description;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
     </script>
-  </body>
+</body>
 </html>

@@ -9,7 +9,8 @@ def index():
 @app.route("/chat", methods=["POST"])
 def chat():
     user_responses = request.form.to_dict()
-    chatbot_responses = chatbot_logic(user_responses)
+    chatbot_responses=[]
+    chatbot_logic(user_responses,chatbot_responses)
     return jsonify({"chatbot_responses": chatbot_responses})
 
 if __name__ == "__main__":
